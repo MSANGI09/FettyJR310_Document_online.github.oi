@@ -742,25 +742,41 @@ function updatePDF() {
 
 function updatePDF() {
 
-    const pdf = document.getElementById("pdfSelector").value;
+    const pdf =
+        document.getElementById("pdfSelector").value;
 
-    const viewer = document.getElementById("pdfViewer");
+    const viewer =
+        document.getElementById("pdfViewer");
 
     const placeholder =
         document.getElementById("pdfPlaceholder");
 
-    // Full online URL of PDF
-    const fullURL =
-        window.location.origin + "/" + pdf;
+    const baseURL =
+        window.location.origin +
+        window.location.pathname.replace("index.html", "");
 
-    // Google PDF Viewer
-    viewer.src =
-        "https://docs.google.com/gview?embedded=true&url=" +
-        encodeURIComponent(fullURL);
+    const pdfURL = baseURL + pdf;
 
-    placeholder.style.display = "none";
+    // Detect mobile
+    const isMobile =
+        /Android|iPhone|iPad|iPod/i.test(
+            navigator.userAgent
+        );
 
-    viewer.style.display = "block";
+    if (isMobile) {
+
+        // Open directly on mobile
+        window.open(pdfURL, "_blank");
+
+    } else {
+
+        // Preview on desktop
+        viewer.src = pdfURL + "#toolbar=1";
+
+        viewer.style.display = "block";
+
+        placeholder.style.display = "none";
+    }
 
     const pdfName =
         document.getElementById("pdfSelector")
@@ -768,9 +784,12 @@ function updatePDF() {
             document.getElementById("pdfSelector").selectedIndex
         ].text;
 
-    showToast("info", `Viewing: ${pdfName}`, "ℹ️");
+    showToast(
+        "info",
+        `Viewing: ${pdfName}`,
+        "ℹ️"
+    );
 }
-
 
 
 
