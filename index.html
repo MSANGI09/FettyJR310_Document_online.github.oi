@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF Viewer & Downloader</title>
+
+<style>
+/* ===== GLOBAL ===== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* ===== LOGIN PAGE ===== */
+.login-page {
+    background: #ffffff;
+    width: 100%;
+    max-width: 480px;
+    padding: 0;
+    border-radius: 24px;
+    box-shadow: 0 30px 80px rgba(0,0,0,.35);
+    text-align: center;
+    animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    position: relative;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.login-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 50px 40px 40px;
+    position: relative;
+    overflow: hidden;
+    clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+}
+
+.login-header::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -30%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at center, rgba(255,255,255,0.15) 0%, transparent 70%);
+    animation: pulse 6s ease-in-out infinite;
+}
+
+.login-header::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.05));
+}
+
+.decorative-circle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(2px);
+}
+
+.circle-1 {
+    width: 180px;
+    height: 180px;
+    top: -60px;
+    right: -40px;
+    animation: rotate 20s linear infinite;
+}
+
+.circle-2 {
+    width: 120px;
+    height: 120px;
+    bottom: -30px;
+    left: -30px;
+    animation: pulse 5s ease-in-out infinite;
+}
+
+.circle-3 {
+    width: 80px;
+    height: 80px;
+    top: 45%;
+    right: 30px;
+    animation: float 4s ease-in-out infinite;
+}
+
+.circle-4 {
+    width: 50px;
+    height: 50px;
+    top: 20%;
+    left: 15%;
+    animation: float 5s ease-in-out infinite 1s;
+}
+
+.logo-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 25px;
+    z-index: 1;
+}
+
+.half-circle-wrapper {
+    position: relative;
+    width: 140px;
+    height: 140px;
+}
+
+.half-circle-image {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 6px solid rgba(255,255,255,0.95);
+    box-shadow: 
+        0 15px 40px rgba(0,0,0,.4),
+        0 0 0 2px rgba(255,255,255,0.1),
+        inset 0 0 20px rgba(0,0,0,0.1);
+    background: #fff;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.half-circle-image::before {
+    content: "";
+    position: absolute;
+    top: -6px;
+    left: -6px;
+    right: -6px;
+    bottom: -6px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(255,255,255,0.4), rgba(255,255,255,0.1));
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.half-circle-image:hover {
+    transform: scale(1.08);
+    box-shadow: 
+        0 20px 50px rgba(0,0,0,.5),
+        0 0 0 3px rgba(255,255,255,0.2);
+}
+
+.half-circle-image:hover::before {
+    opacity: 1;
+}
+
+.image-glow {
+    position: absolute;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    opacity: 0.3;
+    filter: blur(20px);
+    z-index: -2;
+    animation: glow 3s ease-in-out infinite;
+}
+
+.login-content {
+    padding: 50px 45px 55px;
+    background: #ffffff;
+}
+
+.login-page h1 {
+    font-size: 36px;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 10px;
+    letter-spacing: 2px;
+    text-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    position: relative;
+    z-index: 1;
+    text-transform: uppercase;
+}
+
+.login-page h2 {
+    font-size: 15px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.95);
+    margin-bottom: 0;
+    position: relative;
+    z-index: 1;
+    letter-spacing: 0.5px;
+}
+
+.login-content h3 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+}
+
+.login-content p {
+    font-size: 14px;
+    color: #718096;
+    margin-bottom: 30px;
+}
+
+.form-group {
+    margin-bottom: 24px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    font-size: 14px;
+    color: #4a5568;
+    margin-bottom: 8px;
+}
+
+.input-wrapper {
+    position: relative;
+}
+
+.input-wrapper input {
+    width: 100%;
+    padding: 15px 18px;
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    background: #f7fafc;
+    font-weight: 400;
+}
+
+.input-wrapper input:focus {
+    outline: none;
+    border-color: #667eea;
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    transform: translateY(-2px);
+}
+
+.input-wrapper input::placeholder {
+    color: #a0aec0;
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 15px;
+    margin-top: 35px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s ease;
+}
+
+.btn-primary:hover::before {
+    left: 100%;
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(102, 126, 234, 0.6);
+}
+
+.btn-primary:active {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 15px rgba(102, 126, 234, 0.4);
+}
+
+/* ===== PROGRAM PAGE ===== */
+.container {
+    display: none;
+    background: #ffffff;
+    width: 100%;
+    max-width: 1100px;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 30px 60px rgba(0,0,0,.3);
+    animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.container h1 {
+    font-size: 26px;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 30px;
+    text-align: center;
+    letter-spacing: -0.5px;
+}
+
+.controls-section {
+    margin-bottom: 25px;
+}
+
+.controls-section label {
+    display: block;
+    font-weight: 600;
+    font-size: 14px;
+    color: #4a5568;
+    margin-bottom: 10px;
+}
+
+.select-wrapper {
+    position: relative;
+}
+
+.select-wrapper::after {
+    content: "▼";
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: #667eea;
+    font-size: 12px;
+}
+
+.select-wrapper select {
+    width: 100%;
+    padding: 14px 16px;
+    padding-right: 45px;
+    border-radius: 10px;
+    border: 2px solid #e2e8f0;
+    font-size: 15px;
+    background: #f7fafc;
+    cursor: pointer;
+    appearance: none;
+    transition: all 0.3s ease;
+}
+
+.select-wrapper select:focus {
+    outline: none;
+    border-color: #667eea;
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+.pdf-viewer-wrapper {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.1);
+    background: #f7fafc;
+}
+
+.pdf-viewer-wrapper iframe {
+    width: 100%;
+    height: 65vh;
+    border: none;
+    display: block;
+}
+
+.btn-download {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(72, 187, 120, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-download:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(72, 187, 120, 0.5);
+}
+
+.btn-download:active {
+    transform: translateY(0);
+}
+
+.btn-download::before {
+    content: "⬇";
+    font-size: 18px;
+}
+
+/* ===== TOAST NOTIFICATIONS ===== */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.toast {
+    min-width: 300px;
+    padding: 16px 20px;
+    color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.3);
+    animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+               fadeOut 0.4s cubic-bezier(0.4, 0, 0.2, 1) 3s forwards;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    backdrop-filter: blur(10px);
+}
+
+.toast.success { 
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+}
+
+.toast.error { 
+    background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+}
+
+.toast.info { 
+    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+}
+
+.toast-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.toast-message {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes slideIn {
+    from { 
+        transform: translateX(120%); 
+        opacity: 0; 
+    }
+    to { 
+        transform: translateX(0); 
+        opacity: 1; 
+    }
+}
+
+@keyframes fadeOut {
+    to { 
+        opacity: 0; 
+        transform: translateX(120%); 
+    }
+}
+
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(20px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+@keyframes pulse {
+    0%, 100% { 
+        opacity: 0.3; 
+        transform: scale(1);
+    }
+    50% { 
+        opacity: 0.5; 
+        transform: scale(1.1);
+    }
+}
+
+@keyframes float {
+    0%, 100% { 
+        transform: translateY(0); 
+    }
+    50% { 
+        transform: translateY(-15px); 
+    }
+}
+
+@keyframes rotate {
+    0% { 
+        transform: rotate(0deg); 
+    }
+    100% { 
+        transform: rotate(360deg); 
+    }
+}
+
+@keyframes glow {
+    0%, 100% { 
+        opacity: 0.3; 
+        transform: scale(1);
+    }
+    50% { 
+        opacity: 0.5; 
+        transform: scale(1.1);
+    }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .container {
+        padding: 25px;
+    }
+    
+    .login-page {
+        padding: 40px 30px;
+    }
+    
+    .pdf-viewer-wrapper iframe {
+        height: 50vh;
+    }
+    
+    .toast-container {
+        left: 20px;
+        right: 20px;
+    }
+    
+    .toast {
+        min-width: unset;
+    }
+}
+
+
+.pdf-placeholder {
+    width: 100%;
+    height: 65vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f7fafc, #edf2f7);
+    text-align: center;
+}
+
+.placeholder-content {
+    padding: 30px;
+}
+
+.pdf-icon {
+    font-size: 80px;
+    margin-bottom: 20px;
+}
+
+.placeholder-content h2 {
+    color: #2d3748;
+    margin-bottom: 10px;
+    font-size: 28px;
+}
+
+.placeholder-content p {
+    color: #718096;
+    font-size: 16px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div class="login-page" id="loginPage">
+    <div class="login-header">
+        <div class="decorative-circle circle-1"></div>
+        <div class="decorative-circle circle-2"></div>
+        <div class="decorative-circle circle-3"></div>
+        <div class="decorative-circle circle-4"></div>
+        
+        <div class="logo-container">
+            <div class="half-circle-wrapper">
+                <div class="image-glow"></div>
+                <img class="half-circle-image" src="ko.jpg" alt="Profile Photo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22140%22 height=%22140%22%3E%3Ccircle cx=%2270%22 cy=%2270%22 r=%2270%22 fill=%22%23667eea%22/%3E%3C/svg%3E'">
+            </div>
+        </div>
+        <h1>WELCOME</h1>
+        <h2>MSANGIJR</h2>
+        <p style="color: rgba(255,255,255,0.9); font-size: 14px; margin-top: 8px; position: relative; z-index: 1;">📚 Document Management System</p>
+    </div>
+
+    <div class="login-content">
+        <h3>Welcome Back!</h3>
+        <p>Please login to access your documents</p>
+        
+        <div class="form-group">
+            <label>👤 Username</label>
+            <div class="input-wrapper">
+                <input type="text" id="username" placeholder="Enter your username" autocomplete="username">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>🔒 Password</label>
+            <div class="input-wrapper">
+                <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password">
+            </div>
+        </div>
+
+        <button class="btn-primary" onclick="login()">🚀 Login Now</button>
+    </div>
+</div>
+
+<!-- PROGRAM -->
+<div class="container" id="programPage">
+    <h1>📄 Ritha Msangi Vyeti PDF</h1>
+
+    <div class="controls-section">
+        <label>Select Certificate</label>
+        <div class="select-wrapper">
+            <select id="pdfSelector" onchange="updatePDF()">
+                <option value="">---Select Document---</option>
+                <option value="Birth_Certificate.pdf">Birth Certificate</option>
+                <option value="o_level.pdf">Secondary Certificate</option>
+                <option value="a_level.pdf">Advance Level Certificate</option>
+                <option value="certificate.pdf">Bachelor Degree Certificate</option>
+                <option value="transcript.pdf">Transcript</option>
+
+            </select>
+        </div>
+    </div>
+
+    <!--div class="pdf-viewer-wrapper">
+        <iframe id="pdfViewer" src="o_level.pdf"></iframe>
+    </div---->
+
+
+
+    <div class="pdf-viewer-wrapper">
+
+        <!-- Placeholder -->
+        <div id="pdfPlaceholder" class="pdf-placeholder">
+            <div class="placeholder-content">
+                <div class="pdf-icon">📄</div>
+                <h2>No Document Selected</h2>
+                <p>Fetty 😍 Please select a certificate from the dropdown above 👆</p>
+            </div>
+        </div>
+    
+        <!-- PDF Viewer -->
+        
+
+<iframe id="pdfViewer"style="display:none;"allowfullscreen> </iframe>
+    
+    </div>
+
+    <button class="btn-download" onclick="downloadPDF()">Download PDF</button>
+</div>
+
+<!-- TOAST AREA -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+/* ===== TOAST FUNCTION ===== */
+function showToast(type, message, icon) {
+    const container = document.getElementById("toastContainer");
+    const toast = document.createElement("div");
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `
+        <div class="toast-icon">${icon}</div>
+        <div class="toast-message">${message}</div>
+    `;
+    container.appendChild(toast);
+
+    setTimeout(() => toast.remove(), 3500);
+}
+
+/* ===== LOGIN ===== */
+function login() {
+    const user = document.getElementById("username").value.trim();
+    const pass = document.getElementById("password").value;
+
+    if (user === "" || pass === "") {
+        showToast("error", "Please fill in all fields", "❌");
+        return;
+    }
+
+    if (user === "ritha" && pass === "1995") {
+        document.getElementById("loginPage").style.display = "none";
+        document.getElementById("programPage").style.display = "block";
+        showToast("success", "Login successful! Welcome back.", "✅");
+    } else {
+        showToast("error", "Invalid username or password", "❌");
+    }
+}
+
+/* ===== ENTER KEY LOGIN ===== */
+document.addEventListener("DOMContentLoaded", function() {
+    const passwordInput = document.getElementById("password");
+    const usernameInput = document.getElementById("username");
+    
+    [usernameInput, passwordInput].forEach(input => {
+        input.addEventListener("keypress", function(e) {
+            if (e.key === "Enter") {
+                login();
+            }
+        });
+    });
+});
+
+/* ===== PDF ===== 
+function updatePDF() {
+    const pdf = document.getElementById("pdfSelector").value;
+    const viewer = document.getElementById("pdfViewer");
+    viewer.src = pdf;
+    
+    const pdfName = document.getElementById("pdfSelector").options[document.getElementById("pdfSelector").selectedIndex].text;
+    showToast("info", `Viewing: ${pdfName}`, "ℹ️");
+}
+**/
+
+function updatePDF() {
+
+    const pdf = document.getElementById("pdfSelector").value;
+
+    const viewer = document.getElementById("pdfViewer");
+
+    const placeholder =
+        document.getElementById("pdfPlaceholder");
+
+    // Full online URL of PDF
+    const fullURL =
+        window.location.origin + "/" + pdf;
+
+    // Google PDF Viewer
+    viewer.src =
+        "https://docs.google.com/gview?embedded=true&url=" +
+        encodeURIComponent(fullURL);
+
+    placeholder.style.display = "none";
+
+    viewer.style.display = "block";
+
+    const pdfName =
+        document.getElementById("pdfSelector")
+        .options[
+            document.getElementById("pdfSelector").selectedIndex
+        ].text;
+
+    showToast("info", `Viewing: ${pdfName}`, "ℹ️");
+}
+
+
+
+
+function downloadPDF() {
+    const pdf = document.getElementById("pdfSelector").value;
+    const link = document.createElement("a");
+    link.href = pdf;
+    link.download = pdf;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    showToast("success", "Download started successfully", "⬇️");
+}
+</script>
+
+</body>
+</html>
